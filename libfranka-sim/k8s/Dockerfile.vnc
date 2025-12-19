@@ -1,0 +1,64 @@
+FROM ubuntu:24.04
+
+RUN mkdir /src
+COPY . /src
+WORKDIR /src
+
+ENV DEBIAN_FRONTEND=noninteractive \
+#--- VNC specific environment variables
+    USER=ubuntu \
+    PASSWORD=vncpass \
+#-------------------------------
+    UV_PYTHON=python3 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/root/.local/bin:${PATH}" \
+    UV_NO_PROGRESS=1 \
+    HEADLESS=1
+
+# Install minimal desktop + VNC + noVNC
+RUN apt-get update && apt-get install -y \
+    ubuntu-desktop-minimal \
+    xfce4 xfce4-terminal \
+    tigervnc-standalone-server \
+    novnc websockify supervisor \
+    dbus-x11 xauth
+# Install minimal build tools and OpenGL libraries
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create user
+RUN useradd -m -s /bin/bash ${USER} \
+    && echo "${USER}:${PASSWORD}" | chpasswd
+
+# VNC password setup
+RUN mkdir -p /home/${USER}/.vnc /var/log/supervisor \
+    && echo "${PASSWORD}" | vncpasswd -f > /home/${USER}/.vnc/passwd \
+    && chown -R ${USER}:${USER} /home/${USER}/.vnc \
+    && chmod 600 /home/${USER}/.vnc/passwd
+
+# Create xstartup script (start Xfce)
+RUN echo "#!/bin/bash\nstartxfce4 &" > /home/${USER}/.vnc/xstartup \
+    && chmod +x /home/${USER}/.vnc/xstartup \
+    && chown ${USER}:${USER} /home/${USER}/.vnc/xstartup
+
+COPY ./k8s/desktop.conf /etc/supervisor/conf.d/desktop.conf  
+# Supervisor config to start both VNC + noVNC
+# RUN bash -lc "cat > /etc/supervisor/conf.d/desktop.conf <<EOF
+# [program:vnc]
+# command=/usr/bin/vncserver -geometry 1280x800 -localhost no -fg :1
+# user=${USER}
+# autorestart=true
+# priority=10
+
+# [program:novnc]
+# command=/usr/bin/websockify --web=/usr/share/novnc/ 6080 localhost:5901
+# autorestart=true
+# priority=20
+# EOF"
+
+EXPOSE 5901 6080
+CMD ["/usr/bin/supervisord","-n"]

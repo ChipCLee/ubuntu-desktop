@@ -1,0 +1,48 @@
+FROM ubuntu:latest
+RUN mkdir /src
+ADD . /src
+WORKDIR /src
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    UV_PYTHON=python3 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    # uv installs into ~/.local/bin by default
+    PATH="/root/.local/bin:${PATH}" \
+    # Slightly quieter uv output in CI/containers
+    UV_NO_PROGRESS=1 \
+    HEADLESS=1
+
+# Install desktop environment, Python, build tooling, and utilities
+RUN apt-get update && apt-get install -y \
+        ubuntu-desktop-minimal \
+        # tightvncserver \
+        # x11vnc \
+        # xfce4 \
+        # dbus-x11 \
+        nano \
+        curl \
+        ca-certificates \
+        # python3 \
+        # python3-venv \
+        # python3-pip \
+        build-essential \
+        libglib2.0-0 \
+        # libglu1-mesa \
+        # libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+# ---- Install uv via curl ----
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# Create the virtual environment and install dependencies with uv
+RUN uv venv
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#RUN uv sync --frozen --no-dev --no-install-project --python .venv/bin/python
+RUN uv sync --python .venv/bin/python
+RUN uv pip install torch torchvision
+RUN uv pip install -e .
+# RUN . ./.venv/bin/activate
+
+# Expose FCI port
+EXPOSE 1337
+# Start simulation server
+CMD ["/src/.venv/bin/python", "-m", "franka_sim.run_server"]

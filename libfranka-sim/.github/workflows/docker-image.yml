@@ -1,0 +1,183 @@
+name: Docker Build
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    branches:
+      - build3
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # lint_python:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.11'
+
+  #     - name: Install lint dependencies
+  #       run: pip install ruff
+
+  #     - name: Lint python directory
+  #       run: ruff check python
+  # test:
+  #   name: Test Package
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ubuntu-latest]
+  #       python-version: ['3.12']
+
+  #   steps:
+    
+  #   - name: Free disk space
+  #     run: |
+  #       echo "Before cleanup:"
+  #       df -h
+
+  #       sudo rm -rf /opt/hostedtoolcache
+  #       sudo rm -rf /usr/local/lib/android
+  #       sudo rm -rf /usr/local/share/boost
+  #       sudo rm -rf /usr/local/share/edge_driver
+  #       sudo rm -rf /usr/local/share/powershell
+
+  #       docker system prune -af || true
+  #       sudo apt-get clean
+
+  #       echo "After cleanup:"
+  #       df -h
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+
+  #   - name: Set up Python ${{ matrix.python-version }}
+  #     uses: actions/setup-python@v5
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
+
+  #   - name: Install dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       python -m pip install build wheel setuptools twine
+
+  #   - name: Install package dependencies
+  #     run: |
+  #       python -m pip install numpy==1.26.4 genesis-world==0.3.6 numba==0.60.0 pytest pytest-cov
+  #       # Install PyTorch based on OS
+  #       if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+  #         # For Linux, use CPU-only PyTorch from specific URL
+  #         python -m pip install torch torchvision -f https://download.pytorch.org/whl/cpu
+  #       else
+  #         # For macOS, use standard PyTorch package
+  #         python -m pip install torch==2.0.1 torchvision==0.15.2
+  #       fi
+  #       # Verify numpy is installed
+  #       python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
+
+  #   - name: Install package in development mode
+  #     run: |
+  #       python -m pip install -e .
+
+  #   - name: Run tests
+  #     run: |
+  #       python -m pytest tests/test_commands_mock.py tests/test_robot_state.py -v
+
+#---
+
+  build_images:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Free disk space
+        run: |
+          echo "Before cleanup:"
+          df -h
+
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/local/share/edge_driver
+          sudo rm -rf /usr/local/share/powershell
+
+          docker system prune -af || true
+          sudo apt-get clean
+
+          echo "After cleanup:"
+          df -h
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker images
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/f-sim
+          tags: |
+            type=ref,event=branch
+            type=ref,event=branch,suffix=-{{sha}}-{{date 'YYMMDDHHmmss' tz='Asia/Dubai'}}
+            type=ref,event=tag
+            type=ref,event=pr,suffix=-{{sha}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+          flavor: |
+            latest=${{ github.ref == 'refs/heads/local_dev' }}
+
+      # - name: Build full Docker image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./k8s/Dockerfile.vnc
+      #     push: true
+      #     tags: |
+      #       ghcr.io/${{ github.repository }}/f-sim:vnc
+
+      # - name: Build mini Docker image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./k8s/Dockerfile.cpu
+      #     push: true
+      #     tags: |
+      #       ghcr.io/${{ github.repository }}/f-sim:cpu
+      #       ${{ steps.meta.outputs.tags }}
+
+      - name: Build mini Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./k8s/Dockerfile.vnc
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/f-sim:vnc
+            ${{ steps.meta.outputs.tags }}
+
+      # - name: Build mini Docker image
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./k8s/Dockerfile
+      #     push: true
+      #     tags: |
+      #       ghcr.io/${{ github.repository }}/f-sim:${{ github.sha }}
+      #       ghcr.io/${{ github.repository }}/f-sim:${{ github.head_ref || github.ref_name }}            
+

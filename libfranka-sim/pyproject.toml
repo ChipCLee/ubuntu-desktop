@@ -1,0 +1,91 @@
+[build-system]
+requires = [
+    "setuptools>=45",
+    "wheel",
+    "setuptools_scm>=6.2",
+    "numpy>=1.24,<2",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "franka-sim"
+description = "A high-fidelity simulation server that implements the Franka robot network protocol, enabling seamless switching between simulation and hardware."
+requires-python = ">=3.10"
+dynamic = ["version"]  # Use dynamic versioning from git tags
+dependencies = [
+    "numpy>=1.24,<2",
+    "genesis-world==0.3.6",
+    "numba>=0.60,<0.61",
+    "torch>=2.0.0",
+    "torchvision",
+    "pytest",
+]
+
+readme = "README.md"
+authors = [
+    {name = "Baris Yazici", email = "barisyazici@alumni.sabanciuniv.edu"}
+]
+license = {text = "Apache-2.0"}
+keywords = ["robotics", "simulation", "franka", "robot", "genesis"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/BarisYazici/libfranka-sim"
+"Bug Tracker" = "https://github.com/BarisYazici/libfranka-sim/issues"
+"Documentation" = "https://github.com/BarisYazici/libfranka-sim#readme"
+
+[project.scripts]
+run-franka-sim-server = "franka_sim.run_server:main"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.5.0",
+    "black>=24.1.1",
+    "isort>=5.13.2",
+    "flake8>=7.0.0",
+    "flake8-docstrings>=1.7.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+
+]
+
+[tool.setuptools]
+packages = ["franka_sim"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=franka_sim --cov-report=term-missing"
+
+[tool.setuptools_scm]
+# This will get the version from the most recent git tag
+# Fallback version when not in a git repository
+fallback_version = "0.1.5"
+# Use standard version scheme
+version_scheme = "guess-next-dev"
+# Use clean tag version when building from a tag
+local_scheme = "no-local-version"
