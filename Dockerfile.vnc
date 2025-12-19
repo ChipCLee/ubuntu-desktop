@@ -9,8 +9,9 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome*.list \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install uv into /usr/local/bin so it's on PATH in every layer
+ENV UV_INSTALL_DIR=/usr/local/bin
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:${PATH}"
 
 WORKDIR /libfranka-sim
 # Create the virtual environment and install dependencies with uv
