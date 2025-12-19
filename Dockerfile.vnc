@@ -1,8 +1,7 @@
 FROM kasmweb/ubuntu-noble-desktop:1.18.0-rolling-daily
 ADD ./libfranka-sim /libfranka-sim
 # Install desktop environment extras; keep image slim
-RUN rm -f /etc/apt/sources.list.d/google-chrome*.list \
-    && apt-get update \
+RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         nano \
         git \
