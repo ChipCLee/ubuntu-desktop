@@ -1,5 +1,5 @@
 FROM dorowu/ubuntu-desktop-lxde-vnc
-
+ADD ./libfranka-sim /libfranka-sim
 # Install desktop environment extras; keep image slim
 RUN rm -f /etc/apt/sources.list.d/google-chrome*.list \
     && apt-get update \
@@ -8,4 +8,14 @@ RUN rm -f /etc/apt/sources.list.d/google-chrome*.list \
         git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-RUN git clone https://github.com/rr-aa-cl/libfranka-sim.git
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+WORKDIR /libfranka-sim
+# Create the virtual environment and install dependencies with uv
+RUN uv venv
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#RUN uv sync --frozen --no-dev --no-install-project --python .venv/bin/python
+RUN uv sync --python .venv/bin/python
+RUN uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+RUN uv pip install -e .
