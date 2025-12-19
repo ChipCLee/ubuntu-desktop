@@ -1,3 +1,0 @@
-[submodule "libfranka-sim"]
-	path = libfranka-sim
-	url = https://github.com/rr-aa-cl/libfranka-sim.git
