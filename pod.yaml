@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-desktop
+  labels:
+    app: ubuntu-desktop
+spec:
+  containers:
+    - name: ubuntu-desktop
+      image: dorowu/ubuntu-desktop-lxde-vnc
+      ports:
+        - name: web
+          containerPort: 80
+        - name: vnc
+          containerPort: 5900
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-desktop
+spec:
+  selector:
+    app: ubuntu-desktop
+  type: NodePort
+  ports:
+    - name: web
+      port: 6080
+      targetPort: 80
+      nodePort: 30080
+    - name: vnc
+      port: 5900
+      targetPort: 5900
+      nodePort: 30900

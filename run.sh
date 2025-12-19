@@ -1,0 +1,1 @@
+docker run -p 5901:5901 -d ghcr.io/rr-aa-cl/libfranka-sim/f-sim:build

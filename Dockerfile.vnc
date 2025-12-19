@@ -1,0 +1,6 @@
+FROM dorowu/ubuntu-desktop-lxde-vnc
+# Install desktop environment and VNC server
+RUN apt-get update && apt-get install -y \
+    ubuntu-desktop-minimal \
+    git nano
+    # Add other desired packages
