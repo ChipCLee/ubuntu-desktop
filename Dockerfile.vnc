@@ -1,4 +1,4 @@
-FROM x11vnc/docker-desktop:20.04
+FROM kasmweb/ubuntu-noble-desktop:1.18.0-rolling-daily
 ADD ./libfranka-sim /libfranka-sim
 # Install desktop environment extras; keep image slim
 RUN rm -f /etc/apt/sources.list.d/google-chrome*.list \
