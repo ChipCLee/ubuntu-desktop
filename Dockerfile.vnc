@@ -19,8 +19,10 @@ ENV UV_INSTALL_DIR=/usr/local/bin
 # Ensure user-local bin directory is available on PATH
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-USER headless
 ADD ./libfranka-sim /libfranka-sim
+RUN chown -R headless:headless /libfranka-sim
+
+USER headless
 WORKDIR /libfranka-sim
 # Create the virtual environment and install dependencies with uv
 # RUN uv venv
