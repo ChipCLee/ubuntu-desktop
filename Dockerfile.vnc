@@ -1,4 +1,4 @@
-FROM kasmweb/desktop:1.18.0-rolling-daily
+FROM accetto/ubuntu-vnc-xfce-opengl-g3:chromium
 
 USER root
 RUN echo "kasm-user:pw4ggyy" | chpasswd
@@ -15,7 +15,7 @@ RUN sudo apt-get update \
 ENV UV_INSTALL_DIR=/usr/local/bin
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-USER kasm-user
+USER headless
 WORKDIR /libfranka-sim
 # Create the virtual environment and install dependencies with uv
 # RUN uv venv
