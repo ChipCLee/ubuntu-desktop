@@ -10,11 +10,11 @@ RUN sudo apt-get update \
     && sudo apt-get clean \
     && sudo rm -rf /var/lib/apt/lists/*
 
-USER kasm-user
 # Install uv into /usr/local/bin so it's on PATH in every layer
 ENV UV_INSTALL_DIR=/usr/local/bin
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
+USER kasm-user
 WORKDIR /libfranka-sim
 # Create the virtual environment and install dependencies with uv
 RUN uv venv
