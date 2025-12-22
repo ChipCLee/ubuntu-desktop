@@ -1,7 +1,7 @@
 FROM accetto/ubuntu-vnc-xfce-opengl-g3:chromium
 
 USER root
-RUN echo "kasm-user:pw4ggyy" | chpasswd
+
 ADD ./libfranka-sim /libfranka-sim
 # Install desktop environment extras; keep image slim
 RUN sudo apt-get update \
