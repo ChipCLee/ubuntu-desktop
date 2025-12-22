@@ -7,7 +7,8 @@ metadata:
 spec:
   containers:
     - name: ubuntu-desktop
-      image: ghcr.io/chipclee/ubuntu-desktop/gui:main-143c788-251222125603
+      image: ghcr.io/chipclee/ubuntu-desktop/gui:main
+      imagePullPolicy: Always
       ports:
         - name: web
           containerPort: 6901

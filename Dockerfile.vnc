@@ -16,12 +16,14 @@ RUN sudo apt-get update \
 
 # Install uv into /usr/local/bin so it's on PATH in every layer
 USER headless
+# Ensure user-local bin directory is available on PATH
+ENV PATH="$HOME/.local/bin:${PATH}"
 # RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 
 WORKDIR /libfranka-sim
 # Create the virtual environment and install dependencies with uv
-# RUN uv venv
+RUN uv venv
 # RUN uv sync --python .venv/bin/python
 # RUN uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 # RUN uv pip install -e .
