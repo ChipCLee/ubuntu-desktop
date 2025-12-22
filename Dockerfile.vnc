@@ -1,6 +1,7 @@
 FROM kasmweb/desktop:1.18.0-rolling-daily
 
 USER root
+RUN echo "kasm-user:pw4ggyy" | chpasswd
 ADD ./libfranka-sim /libfranka-sim
 # Install desktop environment extras; keep image slim
 RUN sudo apt-get update \

@@ -7,10 +7,10 @@ metadata:
 spec:
   containers:
     - name: ubuntu-desktop
-      image: ghcr.io/chipclee/ubuntu-desktop/gui:latest
+      image: kasmweb/ubuntu-noble-desktop:1.18.0-rolling-daily
       ports:
         - name: web
-          containerPort: 80
+          containerPort: 6901
         - name: vnc
           containerPort: 5900
 ---
@@ -24,8 +24,8 @@ spec:
   type: NodePort
   ports:
     - name: web
-      port: 6080
-      targetPort: 80
+      port: 6901
+      targetPort: 6901
       nodePort: 30080
     - name: vnc
       port: 5900
