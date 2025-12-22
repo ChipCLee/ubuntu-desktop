@@ -1,4 +1,4 @@
-FROM kasmweb/desktop:ubuntu-jammy
+FROM kasmweb/desktop:1.15.0-ubuntu-focal
 
 USER root
 ADD ./libfranka-sim /libfranka-sim
