@@ -1,4 +1,6 @@
-FROM kasmweb/ubuntu-noble-desktop:1.18.0-rolling-daily
+FROM kasmweb/desktop:ubuntu-jammy
+
+USER root
 ADD ./libfranka-sim /libfranka-sim
 # Install desktop environment extras; keep image slim
 RUN sudo apt-get update \
@@ -8,6 +10,7 @@ RUN sudo apt-get update \
     && sudo apt-get clean \
     && sudo rm -rf /var/lib/apt/lists/*
 
+USER kasm-user
 # Install uv into /usr/local/bin so it's on PATH in every layer
 ENV UV_INSTALL_DIR=/usr/local/bin
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
