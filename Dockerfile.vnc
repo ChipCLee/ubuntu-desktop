@@ -6,6 +6,9 @@ ADD ./libfranka-sim /libfranka-sim
 # Install desktop environment extras; keep image slim
 RUN sudo apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        curl \
+        ca-certificates \
+        build-essential \
         nano \
         git \
     && sudo apt-get clean \
